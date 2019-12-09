@@ -39,7 +39,7 @@ function get_handler()
                     `car`.`type` AS "Type",
                     `car`.`status` AS "Status",
                     `car`.`price_per_hour` AS "PricePerHour", 
-                    `car`.`price_per_km` AS "PricePerKM"
+                    `car`.`price_per_km` AS "PricePerKm"
                 FROM `car` 
                 WHERE `car`.`license_plate`=?';
             out($sql->execute($q, $_GET['license_plate']));
@@ -56,7 +56,7 @@ function get_handler()
                 `car`.`type` AS "Type",
                 `car`.`status` AS "Status",
                 `car`.`price_per_hour` AS "PricePerHour", 
-                `car`.`price_per_km` AS "PricePerKM"
+                `car`.`price_per_km` AS "PricePerKm"
              FROM `car` 
              WHERE 1
             ORDER BY `car`.`license_plate` ASC LIMIT ?, ?';
@@ -71,97 +71,7 @@ function get_handler()
     
             out($sql->execute($q, $f, $l));
         }
-    } /*elseif ($table == 'rents') {
-        if (!isset(getallheaders()['car_rent_token'])) {
-            error(400, 'Request does not contains token');
-        } else {
-            $result = $sql->execute('SELECT * FROM `user` WHERE `token`=?', getallheaders()['car_rent_token']);
-            if ($sql->count == 0)
-                error(403, 'API-Token not found');
-            else {
-                $f = 0;
-                $l = 10;
-                if (isset($_GET['f'])) {
-                    $f = $_GET['f'];
-                }
-                if (isset($_GET['l'])) {
-                    $l = $_GET['l'];
-                }
-                $result = $sql->execute(
-                    'SELECT 
-                    `rent`.`id` AS "rent_id",
-                    `rent`.`order_date` AS "order_date",
-                    `car_status`.`name_en` AS "car_status_en",
-                    `car_status`.`name_hu` AS "car_status_hu",
-                    `car`.`license_plate` AS "license_plate",
-                    `car`.`kw` AS "kw",
-                    `car`.`ccm` AS "ccm",
-                    `car`.`km` AS "km",
-                    `car`.`transmission` AS "automatic",
-                    `rent_status`.`name_en` AS "rent_status_en",
-                    `rent_status`.`name_en` AS "rent_status_hu",
-                    `car`.`make` AS "make",
-                    `car`.`model` AS "model",
-                    `category`.`name_en` AS "category_en",
-                    `category`.`name_hu` AS "category_hu",
-                    `type`.`name_en` AS "type_en",
-                    `type`.`name_en` AS "type_hu"
-                    FROM `rent`, `car`, `type`, `category`, `user`, `rent_status`, `car_status` WHERE 
-                        `rent`.`car_id` = `car`.`id` AND 
-                        `rent`.`status` = `rent_status`.`id` AND
-                        `car`.`category` = `category`.`id` AND
-                        `car`.`type` = `type`.`id` AND
-                        `car`.`status` = `car_status`.`id` AND
-                        `user`.`id` = `rent`.`user_id` AND
-                        `user`.`token` = ?  ORDER BY `rent`.`start_date` DESC LIMIT ?, ?',
-                    getallheaders()['car_rent_token'],
-                    $f,
-                    $l
-                );
-                out($result);
-            }
-        }
-    } elseif ($table == 'rentable') {
-        if (!isset(getallheaders()['car_rent_token'])) {
-            error(400, 'Request does not contains token');
-            return false;
-        }
-        $result = $sql->execute('SELECT * FROM `user` WHERE `token`=?', getallheaders()['car_rent_token']);
-        if ($sql->count == 0)
-            error(403, 'API-Token not found');
-        $f = 0;
-        $l = 25;
-        if (isset($_GET['f']))
-            $f = $_GET['f'];
-        if (isset($_GET['l']))
-            $l = $_GET['l'];
-        $q = 'SELECT
-                `car`.`license_plate` AS "license_plate",
-                `car`.`kw` AS "kw",
-                `car`.`ccm` AS "ccm",
-                `car`.`km` AS "km",
-                `car`.`transmission` AS "transmission",
-                `car`.`price_per_hour` AS "price_per_hour",
-                `car`.`price_per_km` AS "price_per_km",
-                `type`.`name_en` AS "type_en",
-                `type`.`name_hu` AS "type_hu",
-                `category`.`name_en` AS "category_en",
-                `category`.`name_hu` AS "category_hu",
-                `car`.`make` AS "make",
-                `car`.`model` AS "model"
-            FROM `car`, `make`, `model`, `rent`, `category`, `type`
-            WHERE
-                `car`.`id` = `rent`.`car_id` AND
-                `car`.`make` = `make`.`id` AND
-                `car`.`model` = `model`.`id` AND
-                `car`.`category` = `category`.`id` AND
-                `car`.`type` = `type`.`id` AND
-                `car`.`status` = 1
-            LIMIT ?, ?';
-        $sql = new SQL();
-        $result = $sql->execute($q, $f, $l);
-        out($result);
-    }*/ else if ($table == 'categories') {
+    } else if ($table == 'categories') {
         $q = 'SELECT * FROM `category`';
         $result = $sql->execute($q);
         out($result);
@@ -188,24 +98,6 @@ function post_handler()
             error(403, 'API-Token not found');
             return false;
         }
-        /*if (!isset($data['c'])) { //renting
-            $result = $sql->execute("SELECT `status` FROM `car` WHERE `id`=?", $data['car_id']);
-            if (empty($result)) {
-                error(404, "No car with id " . $data['car_id']);
-                return false;
-            } else if ($result[0]['status'] != 1) {
-                error(403, "This car can not be rented at this time");
-                return false;
-            }
-            $sql->execute('INSERT INTO `rent` (`user_id`, `car_id`) VALUES (?, ?)', $u_id, $data['car_id']);
-            if (($sql->stmtError == 'Zero rows') && empty($sql->conError))
-                out(['status' => 'OK']);
-            else {
-                error(500, 'SQL Error');
-                out(['status' => 'SQL_ERROR', 'stmt' => $sql->stmtError, 'con' => $sql->conError]);
-                return false;
-            }
-        } else {*/
         if ($result[0]['auth'] < 2) {
             error(403, 'This user does not have permission to add cars.');
             return false;
@@ -220,7 +112,6 @@ function post_handler()
             out(['status' => 'SQL_ERROR', 'stmt' => $sql->stmtError, 'con' => $sql->conError]);
             return false;
         }
-        //}
     }
 }
 

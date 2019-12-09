@@ -13,9 +13,8 @@ namespace restapi3
 {
     public partial class Form1 : Form
     {
-
-        String URL = "http://localhost/car_rent/api/";
-        String ROUTE = "index.php";
+        private const string URL = "http://localhost/car_rent/api/";
+        private const string ROUTE = "index.php";
 
         public string APIKey { get; private set; }
 
@@ -23,83 +22,90 @@ namespace restapi3
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
-           
-
-
         }
 
         internal void AddCar(string license_plate, string make, string model, string kw, string km, string ccm, bool automatic, string pricePerHour, string pricePerKilometer, string category, string type, string status)
         {
-            var client = new RestClient(URL);
-            var request = new RestRequest(ROUTE, Method.POST)
+            try
             {
-                RequestFormat = DataFormat.Json
-            };
-            _ = request.AddHeader("car_rent_token", APIKey);
-            _ = request.AddBody(new Car
+                var client = new RestClient(URL);
+                var request = new RestRequest(ROUTE, Method.POST)
+                {
+                    RequestFormat = DataFormat.Json
+                };
+                _ = request.AddHeader("car_rent_token", APIKey);
+                _ = request.AddBody(new Car
+                {
+                    LicensePlate = license_plate,
+                    Make = make,
+                    Model = model,
+                    KW = int.Parse(kw),
+                    KM = int.Parse(km),
+                    CCM = int.Parse(ccm),
+                    Transmission = automatic,
+                    PricePerHour = int.Parse(pricePerHour),
+                    PricePerKm = int.Parse(pricePerKilometer),
+                    Category = category,
+                    Type = type,
+                    Status = status
+                });
+                var response = client.Execute(request);
+                _ = MessageBox.Show(response.StatusDescription, $"{response.StatusCode}: {response.ResponseStatus}");
+            }
+            catch (Exception ex)
             {
-                LicensePlate = license_plate,
-                Make = make,
-                Model = model,
-                KW = int.Parse(kw),
-                KM = int.Parse(km),
-                CCM = int.Parse(ccm),
-                Transmission = automatic,
-                PricePerHour = int.Parse(pricePerHour),
-                PricePerKm = int.Parse(pricePerKilometer),
-                Category = category,
-                Type = type,
-                Status = status
-            });
-            var response = client.Execute(request);
-            _ = MessageBox.Show(response.StatusDescription, $"{response.StatusCode}: {response.ResponseStatus}");
+                _ = MessageBox.Show(ex.Message, "error");
+            }
         }
 
         internal void EditCar(string license, string license_plate, string make, string model, string kw, string km, string ccm, bool automatic, string pricePerHour, string pricePerKilometer, string category, string type, string status)
         {
-            var client = new RestClient(URL);
-            var request = new RestRequest(ROUTE, Method.PUT)
+            try
             {
-                RequestFormat = DataFormat.Json
-            };
-            _ = request.AddHeader("car_rent_token", APIKey);
-            _ = request.AddHeader("old_license", license);
-            _ = request.AddBody(new Car
+                var client = new RestClient(URL);
+                var request = new RestRequest(ROUTE, Method.PUT)
+                {
+                    RequestFormat = DataFormat.Json
+                };
+                _ = request.AddHeader("car_rent_token", APIKey);
+                _ = request.AddHeader("old_license", license);
+                _ = request.AddBody(new Car
+                {
+                    LicensePlate = license_plate,
+                    Make = make,
+                    Model = model,
+                    KW = int.Parse(kw),
+                    KM = int.Parse(km),
+                    CCM = int.Parse(ccm),
+                    Transmission = automatic,
+                    PricePerHour = int.Parse(pricePerHour),
+                    PricePerKm = int.Parse(pricePerKilometer),
+                    Category = category,
+                    Type = type,
+                    Status = status
+                });
+                var response = client.Execute(request);
+                _ = MessageBox.Show(response.StatusDescription, $"{response.StatusCode}: {response.ResponseStatus}");
+            }
+            catch (Exception ex)
             {
-                LicensePlate = license_plate,
-                Make = make,
-                Model = model,
-                KW = int.Parse(kw),
-                KM = int.Parse(km),
-                CCM = int.Parse(ccm),
-                Transmission = automatic,
-                PricePerHour = int.Parse(pricePerHour),
-                PricePerKm = int.Parse(pricePerKilometer),
-                Category = category,
-                Type = type,
-                Status = status
-            });
-            var response = client.Execute(request);
-            _ = MessageBox.Show(response.StatusDescription, $"{response.StatusCode}: {response.ResponseStatus}");
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            var client = new RestClient(URL);
-            //String ROUTE = "index.php"+"?id="+textBox2.Text;
-            var request = new RestRequest(ROUTE, Method.GET);
-            IRestResponse response = client.Execute(request);
-            var content = response.Content;
-            //textBox1.Text = content;
+                _ = MessageBox.Show(ex.Message, "error");
+            }
         }
 
         public void LoadButton_clicked(object sender, EventArgs e)
         {
-            var client = new RestClient(URL);
-            var request = new RestRequest(ROUTE, Method.GET);
-            IRestResponse<List<Car>> response = client.Execute<List<Car>>(request);
-            dataGridView1.DataSource = response.Data;
+            try
+            {
+                var client = new RestClient(URL);
+                var request = new RestRequest(ROUTE, Method.GET);
+                var response = client.Execute<List<Car>>(request);
+                dataGridView1.DataSource = response.Data;
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show(ex.Message, "error");
+            }
         }
 
         private void Btn_AddKey_click(object sender, EventArgs e)
@@ -119,31 +125,45 @@ namespace restapi3
 
         private void Btn_edit_Click(object sender, EventArgs e)
         {
-            var client = new RestClient(URL);
-            String ROUTE = "index.php"+"?id="+txt_edit.Text;
-            var request = new RestRequest(ROUTE, Method.GET);
-            IRestResponse<List<Car>> response = client.Execute<List<Car>>(request);
-            if(response.Data.Count == 0)
+            try
             {
-                _ = MessageBox.Show("License Plate not found");
-                return;
+                var client = new RestClient(URL);
+                var ROUTE = "index.php" + "?license_plate=" + txt_edit.Text;
+                var request = new RestRequest(ROUTE, Method.GET);
+                var response = client.Execute<List<Car>>(request);
+                if (response.Data.Count == 0)
+                {
+                    _ = MessageBox.Show("License Plate not found");
+                    return;
+                }
+                var form = new EditCar(this, response.Data[0]);
+                form.Show();
             }
-            var form = new EditCar(this, response.Data[0]);
-            form.Show();
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show(ex.Message, "error");
+            }
         }
 
         private void btn_delete_Click(object sender, EventArgs e)
         {
-            var client = new RestClient(URL);
-            String ROUTE = "index.php";
-            var request = new RestRequest(ROUTE, Method.DELETE)
+            try
             {
-                RequestFormat = DataFormat.Json
-            };
-            _ = request.AddHeader("car_rent_token", APIKey);
-            _ = request.AddHeader("license_plate", txt_del.Text);
-            var response = client.Execute(request);
-            _ = MessageBox.Show(response.StatusDescription, $"{response.StatusCode}: {response.ResponseStatus}");
+                var client = new RestClient(URL);
+                var ROUTE = "index.php";
+                var request = new RestRequest(ROUTE, Method.DELETE)
+                {
+                    RequestFormat = DataFormat.Json
+                };
+                _ = request.AddHeader("car_rent_token", APIKey);
+                _ = request.AddHeader("license_plate", txt_del.Text);
+                var response = client.Execute(request);
+                _ = MessageBox.Show(response.StatusDescription, $"{response.StatusCode}: {response.ResponseStatus}");
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show(ex.Message, "error");
+            }
         }
 
         private void Btn_NewClicked(object sender, EventArgs e)
@@ -152,12 +172,19 @@ namespace restapi3
             form.Show();
         }
 
-        private void dataGridView1_RowEnter(object sender, DataGridViewCellEventArgs e)
+        private void DataGridView1_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
-            if(dataGridView1.SelectedRows.Count > 0)
+            try
             {
-                txt_del.Text = dataGridView1.SelectedRows[0].Cells[0].Value.ToString();
-                txt_edit.Text = txt_del.Text;
+                if (dataGridView1.SelectedRows.Count > 0)
+                {
+                    txt_del.Text = dataGridView1.SelectedRows[0].Cells[0].Value.ToString();
+                    txt_edit.Text = txt_del.Text;
+                }
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show(ex.Message, "error");
             }
         }
     }

@@ -50,7 +50,7 @@
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.Size = new System.Drawing.Size(1110, 313);
             this.dataGridView1.TabIndex = 0;
-            this.dataGridView1.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_RowEnter);
+            this.dataGridView1.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView1_RowEnter);
             // 
             // btn_refresh
             // 
@@ -83,6 +83,7 @@
             // 
             // btn_edit
             // 
+            this.btn_edit.Enabled = false;
             this.btn_edit.Location = new System.Drawing.Point(314, 331);
             this.btn_edit.Name = "btn_edit";
             this.btn_edit.Size = new System.Drawing.Size(75, 23);
@@ -142,7 +143,7 @@
             this.Controls.Add(this.btn_refresh);
             this.Controls.Add(this.dataGridView1);
             this.Name = "Form1";
-            this.Text = "REST client";
+            this.Text = "Client";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
